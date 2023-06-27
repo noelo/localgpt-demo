@@ -37,26 +37,26 @@ def main():
     print(f"Loading documents from {SOURCE_DIRECTORY}")
     documents = load_documents(SOURCE_DIRECTORY)
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    text_splitter2 = TokenTextSplitter(chunk_size=1000, chunk_overlap=200)
+    # text_splitter2 = TokenTextSplitter(chunk_size=1000, chunk_overlap=200)
     print("RecursiveCharacterTextSplitter Start :", datetime.now())
     texts = text_splitter.split_documents(documents)
     print("RecursiveCharacterTextSplitter End :", datetime.now())
     print("TokenTextSplitter Start :", datetime.now())
-    texts2 = text_splitter2.split_documents(documents)
+    # texts2 = text_splitter2.split_documents(documents)
     print("TokenTextSplitter End :", datetime.now())
     print(f"Loaded {len(documents)} documents from {SOURCE_DIRECTORY}")
     print(f"RecursiveCharacterTextSplitter Split into {len(texts)} chunks of text")
-    print(f"TokenTextSplitter Split into {len(texts2)} chunks of text")
+    # print(f"TokenTextSplitter Split into {len(texts2)} chunks of text")
     
-    embeddings = OpenAIEmbeddings()
+    # embeddings = OpenAIEmbeddings()
 
-    # # Create embeddings
-    # # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",
-    # #                                             model_kwargs={"device": device})
+    # # # Create embeddings
+    # # # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",
+    # # #                                             model_kwargs={"device": device})
     
-    db = Chroma.from_documents(texts, embeddings, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS)
-    db.persist()
-    db = None
+    # db = Chroma.from_documents(texts, embeddings, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS)
+    # db.persist()
+    # db = None
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ import openai
 import chainlit as cl
 from chainlit import Message, on_chat_start
 from langchain.chains import RetrievalQA
-from langchain.vectorstores import Chroma
+from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.prompts.chat import (
@@ -53,13 +53,14 @@ async def main():
 @cl.langchain_factory(use_async=True)
 def load_model():
     openai.api_key = os.environ["OPENAI_API_KEY"]
-    local_llm = OpenAI(temperature=0.0)
+    llm = OpenAI(temperature=0.0)
     embeddings = OpenAIEmbeddings()
+    
+    db = FAISS.load_local(PERSIST_DIRECTORY,embeddings)
 
-    db = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
     
     retriever = db.as_retriever()
-    qa = RetrievalQA.from_chain_type(llm=local_llm, chain_type="refine", retriever=retriever, return_source_documents=True)
+    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=True)
     return qa
 
 

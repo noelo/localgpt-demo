@@ -5,7 +5,7 @@ from typing import List
 
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
+from langchain.vectorstores import FAISS
 from langchain.docstore.document import Document
 from langchain.embeddings import OpenAIEmbeddings
 from constants import CHROMA_SETTINGS, SOURCE_DIRECTORY, PERSIST_DIRECTORY
@@ -27,15 +27,13 @@ def main():
     
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     logging.info(f"RecursiveCharacterTextSplitter Start : {datetime.now()}")
-    texts = text_splitter.split_documents(documents)
+    docs = text_splitter.split_documents(documents)
     logging.info("RecursiveCharacterTextSplitter End : {datetime.now()}")
-    logging.info(f"RecursiveCharacterTextSplitter Split into {len(texts)} chunks of text")
+    logging.info(f"RecursiveCharacterTextSplitter Split into {len(docs)} chunks of text")
        
     embedding = OpenAIEmbeddings()  
-    
-    db = Chroma.from_documents(texts, embedding,persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS)
-    db.persist()
-    db = None
+    db = FAISS.from_documents(docs, embedding)
+    db.save_local(PERSIST_DIRECTORY)
 
 
 if __name__ == "__main__":

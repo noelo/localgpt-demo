@@ -41,6 +41,7 @@ chain_type_kwargs = {"prompt": prompt}
 
 @on_chat_start
 async def main():
+    '''Startup and setup env'''
     await cl.Avatar(
         name="OCP",
         path="./OpenShift-LogoType.svg.png",
@@ -52,20 +53,21 @@ async def main():
 
 @cl.langchain_factory(use_async=True)
 def load_model():
+    '''Load embeddings and embeddings db, setup retriever chain'''
     openai.api_key = os.environ["OPENAI_API_KEY"]
     llm = OpenAI(temperature=0.0)
     embeddings = OpenAIEmbeddings()
-    
-    db = FAISS.load_local(PERSIST_DIRECTORY,embeddings)
 
-    
+    db = FAISS.load_local(PERSIST_DIRECTORY,embeddings)
     retriever = db.as_retriever()
+
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=True)
     return qa
 
 
 @cl.langchain_postprocess
 async def process_response(res):
+    '''Format response and make it pretty ;-) '''
     answer = res["result"]
     sources = res["source_documents"]
     elements=[]
@@ -74,5 +76,5 @@ async def process_response(res):
         res_str = src_str.replace("/home/noelo/dev/localGPT/SOURCE_DOCUMENTS/", "")
         final_str = 'Page ' + str(source.metadata['page'])
         elements.append(cl.Text(content=final_str, name=res_str, display="inline"))
-   
+ 
     await cl.Message(content=answer,elements=elements,author="OCP").send()
